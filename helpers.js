@@ -9,6 +9,19 @@ exports.querySteam = async (steamId) => {
 			return out;
 };
 		
-exports.getGames = (steamId) => {
-	return [];
+exports.getGamesIntersect = async (snowflakes, steamIds) => {
+	const gameMap = new Discord.Collection();
+		for (let [snowflake, steam] of steamIds.filter((gameId, memId) => snowflakes.includes(memId))){
+			const gameList = await helper.querySteam(steam);
+			gameMap.set(snowflake, gameList);
+		};
+		if (gameMap.size !== 0) {
+			gameMap = gameMap.reduce((acc, games) => acc.filter(entry => games.includes(entry))).sort(function(a,b) {
+				a = a.toLowerCase();
+				b = b.toLowerCase();
+				if( a == b) return 0;
+				return a < b ? -1 : 1;
+			});
+		}
+		return gameMap;
 };
